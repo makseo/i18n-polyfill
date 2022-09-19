@@ -6,18 +6,18 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import * as ml from "../ast/ast";
-import * as i18n from "../ast/i18n_ast";
-import {I18nError} from "../ast/parse_util";
-import {Parser} from "../ast/parser";
-import {getXmlTagDefinition} from "../ast/xml_tags";
-import {I18nMessagesById} from "./serializer";
-import {digest} from "./digest";
-import {xmbMapper} from "./xmb";
+import * as ml from '../ast/ast';
+import * as i18n from '../ast/i18n_ast';
+import {I18nError} from '../ast/parse_util';
+import {Parser} from '../ast/parser';
+import {getXmlTagDefinition} from '../ast/xml_tags';
+import {I18nMessagesById} from './serializer';
+import {digest} from './digest';
+import {xmbMapper} from './xmb';
 
-const _TRANSLATIONS_TAG = "translationbundle";
-const _TRANSLATION_TAG = "translation";
-const _PLACEHOLDER_TAG = "ph";
+const _TRANSLATIONS_TAG = 'translationbundle';
+const _TRANSLATION_TAG = 'translation';
+const _PLACEHOLDER_TAG = 'ph';
 
 export function xtbLoadToI18n(content: string): I18nMessagesById {
   // xtb to xml nodes
@@ -25,7 +25,7 @@ export function xtbLoadToI18n(content: string): I18nMessagesById {
   const {msgIdToHtml, errors: parseErrors} = xtbParser.parse(content);
 
   if (parseErrors.length) {
-    throw new Error(`xtb parse errors:\n${parseErrors.join("\n")}`);
+    throw new Error(`xtb parse errors:\n${parseErrors.join('\n')}`);
   }
 
   // xml nodes to i18n nodes
@@ -35,11 +35,11 @@ export function xtbLoadToI18n(content: string): I18nMessagesById {
   // Because we should be able to load xtb files that rely on features not supported by angular,
   // we need to delay the conversion of html to i18n nodes so that non angular messages are not
   // converted
-  Object.keys(msgIdToHtml).forEach(msgId => {
+  Object.keys(msgIdToHtml).forEach((msgId) => {
     const valueFn = () => {
       const {i18nNodes, errors} = converter.convert(msgIdToHtml[msgId]);
       if (errors.length) {
-        throw new Error(`xtb parse errors:\n${errors.join("\n")}`);
+        throw new Error(`xtb parse errors:\n${errors.join('\n')}`);
       }
       return i18nNodes;
     };
@@ -62,9 +62,9 @@ function createLazyProperty(messages: any, id: string, valueFn: () => any) {
       Object.defineProperty(messages, id, {enumerable: true, value});
       return value;
     },
-    set: _ => {
-      throw new Error("Could not overwrite an XTB translation");
-    }
+    set: (_) => {
+      throw new Error('Could not overwrite an XTB translation');
+    },
   });
 }
 
@@ -80,14 +80,14 @@ class XtbParser implements ml.Visitor {
 
     // We can not parse the ICU messages at this point as some messages might not originate
     // from Angular that could not be lex'd.
-    const xml = new Parser(getXmlTagDefinition).parse(xtb, "", false);
+    const xml = new Parser(getXmlTagDefinition).parse(xtb, '', false);
 
     this._errors = xml.errors;
     ml.visitAll(this, xml.rootNodes);
 
     return {
       msgIdToHtml: this._msgIdToHtml,
-      errors: this._errors
+      errors: this._errors,
     };
   }
 
@@ -103,7 +103,7 @@ class XtbParser implements ml.Visitor {
         break;
 
       case _TRANSLATION_TAG:
-        const idAttr = element.attrs.find(attr => attr.name === "id");
+        const idAttr = element.attrs.find((attr) => attr.name === 'id');
         if (!idAttr) {
           this._addError(element, `<${_TRANSLATION_TAG}> misses the "id" attribute`);
         } else {
@@ -121,7 +121,7 @@ class XtbParser implements ml.Visitor {
         break;
 
       default:
-        this._addError(element, "Unexpected tag");
+        this._addError(element, 'Unexpected tag');
     }
   }
 
@@ -145,7 +145,7 @@ class XmlToI18n implements ml.Visitor {
   private _errors: I18nError[];
 
   convert(message: string) {
-    const xmlIcu = new Parser(getXmlTagDefinition).parse(message, "", true);
+    const xmlIcu = new Parser(getXmlTagDefinition).parse(message, '', true);
     this._errors = xmlIcu.errors;
 
     const i18nNodes =
@@ -153,7 +153,7 @@ class XmlToI18n implements ml.Visitor {
 
     return {
       i18nNodes,
-      errors: this._errors
+      errors: this._errors,
     };
   }
 
@@ -164,7 +164,7 @@ class XmlToI18n implements ml.Visitor {
   visitExpansion(icu: ml.Expansion, context: any) {
     const caseMap: {[value: string]: i18n.Node} = {};
 
-    ml.visitAll(this, icu.cases).forEach(c => {
+    ml.visitAll(this, icu.cases).forEach((c) => {
       caseMap[c.value] = new i18n.Container(c.nodes, icu.sourceSpan);
     });
 
@@ -174,15 +174,15 @@ class XmlToI18n implements ml.Visitor {
   visitExpansionCase(icuCase: ml.ExpansionCase, context: any): any {
     return {
       value: icuCase.value,
-      nodes: ml.visitAll(this, icuCase.expression)
+      nodes: ml.visitAll(this, icuCase.expression),
     };
   }
 
   visitElement(el: ml.Element, context: any): i18n.Placeholder | null {
     if (el.name === _PLACEHOLDER_TAG) {
-      const nameAttr = el.attrs.find(attr => attr.name === "name");
+      const nameAttr = el.attrs.find((attr) => attr.name === 'name');
       if (nameAttr) {
-        return new i18n.Placeholder("", nameAttr.value, el.sourceSpan!);
+        return new i18n.Placeholder('', nameAttr.value, el.sourceSpan!);
       }
 
       this._addError(el, `<${_PLACEHOLDER_TAG}> misses the "name" attribute`);

@@ -6,17 +6,17 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import * as i18n from "../ast/i18n_ast";
-import * as ml from "../ast/ast";
-import * as xml from "./xml_helper";
-import {decimalDigest} from "./digest";
-import {HtmlToXmlParser, PlaceholderMapper, SimplePlaceholderMapper, XmlMessagesById} from "./serializer";
+import * as i18n from '../ast/i18n_ast';
+import * as ml from '../ast/ast';
+import * as xml from './xml_helper';
+import {decimalDigest} from './digest';
+import {HtmlToXmlParser, PlaceholderMapper, SimplePlaceholderMapper, XmlMessagesById} from './serializer';
 
-const _MESSAGES_TAG = "messagebundle";
-const _MESSAGE_TAG = "msg";
-const _PLACEHOLDER_TAG = "ph";
-const _EXEMPLE_TAG = "ex";
-const _SOURCE_TAG = "source";
+const _MESSAGES_TAG = 'messagebundle';
+const _MESSAGE_TAG = 'msg';
+const _PLACEHOLDER_TAG = 'ph';
+const _EXEMPLE_TAG = 'ex';
+const _SOURCE_TAG = 'source';
 
 const _DOCTYPE = `<!ELEMENT messagebundle (msg)*>
 <!ATTLIST messagebundle class CDATA #IMPLIED>
@@ -44,7 +44,7 @@ export function xmbLoadToXml(content: string): XmlMessagesById {
   const {xmlMessagesById, errors} = parser.parse(content);
 
   if (errors.length) {
-    throw new Error(`xmb parse errors:\n${errors.join("\n")}`);
+    throw new Error(`xmb parse errors:\n${errors.join('\n')}`);
   }
 
   return xmlMessagesById;
@@ -55,20 +55,20 @@ export function xmbWrite(messages: i18n.Message[], locale: string | null, existi
   const visitor = new Visitor();
   const rootNode = new xml.Tag(_MESSAGES_TAG);
 
-  existingNodes.forEach(node => {
+  existingNodes.forEach((node) => {
     rootNode.children.push(new xml.CR(2), node);
   });
 
   // console.log(existingNodes);
-  messages.forEach(message => {
+  messages.forEach((message) => {
     const attrs: {[k: string]: string} = {id: message.id};
 
     if (message.description) {
-      attrs["desc"] = message.description;
+      attrs['desc'] = message.description;
     }
 
     if (message.meaning) {
-      attrs["meaning"] = message.meaning;
+      attrs['meaning'] = message.meaning;
     }
 
     const sourceTags: xml.Tag[] = [];
@@ -76,27 +76,27 @@ export function xmbWrite(messages: i18n.Message[], locale: string | null, existi
       sourceTags.push(
         new xml.Tag(_SOURCE_TAG, {}, [
           new xml.Text(
-            `${source.filePath}:${source.startLine}${source.endLine !== source.startLine ? "," + source.endLine : ""}`
-          )
-        ])
+            `${source.filePath}:${source.startLine}${source.endLine !== source.startLine ? ',' + source.endLine : ''}`,
+          ),
+        ]),
       );
     });
 
     rootNode.children.push(
       new xml.CR(2),
-      new xml.Tag(_MESSAGE_TAG, attrs, [...sourceTags, ...visitor.serialize(message.nodes)])
+      new xml.Tag(_MESSAGE_TAG, attrs, [...sourceTags, ...visitor.serialize(message.nodes)]),
     );
   });
 
   rootNode.children.push(new xml.CR());
 
   return xml.serialize([
-    new xml.Declaration({version: "1.0", encoding: "UTF-8"}),
+    new xml.Declaration({version: '1.0', encoding: 'UTF-8'}),
     new xml.CR(),
     new xml.Doctype(_MESSAGES_TAG, _DOCTYPE),
     new xml.CR(),
     exampleVisitor.addDefaultExamples(rootNode),
-    new xml.CR()
+    new xml.CR(),
   ]);
 }
 
@@ -154,15 +154,15 @@ class Visitor implements i18n.Visitor {
     const exTag = new xml.Tag(_EXEMPLE_TAG, {}, [
       new xml.Text(
         `{${ph.value.expression}, ${ph.value.type}, ${Object.keys(ph.value.cases)
-          .map((value: string) => value + " {...}")
-          .join(" ")}}`
-      )
+          .map((value: string) => value + ' {...}')
+          .join(' ')}}`,
+      ),
     ]);
     return [new xml.Tag(_PLACEHOLDER_TAG, {name: ph.name}, [exTag])];
   }
 
   serialize(nodes: i18n.Node[]): xml.Node[] {
-    return [].concat(...nodes.map(node => node.visit(this)));
+    return [].concat(...nodes.map((node) => node.visit(this)));
   }
 }
 
@@ -180,11 +180,11 @@ class ExampleVisitor implements xml.IVisitor {
   visitTag(tag: xml.Tag): void {
     if (tag.name === _PLACEHOLDER_TAG) {
       if (!tag.children || tag.children.length === 0) {
-        const exText = new xml.Text(tag.attrs["name"] || "...");
+        const exText = new xml.Text(tag.attrs['name'] || '...');
         tag.children = [new xml.Tag(_EXEMPLE_TAG, {}, [exText])];
       }
     } else if (tag.children) {
-      tag.children.forEach(node => node.visit(this));
+      tag.children.forEach((node) => node.visit(this));
     }
   }
 
@@ -206,5 +206,5 @@ class ExampleVisitor implements xml.IVisitor {
 
 // XMB/XTB placeholders can only contain A-Z, 0-9 and _
 export function toPublicName(internalName: string): string {
-  return internalName.toUpperCase().replace(/[^A-Z0-9_]/g, "_");
+  return internalName.toUpperCase().replace(/[^A-Z0-9_]/g, '_');
 }

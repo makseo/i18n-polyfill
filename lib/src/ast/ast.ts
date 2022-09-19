@@ -7,15 +7,17 @@
  */
 
 /* tslint:disable */
-import {ParseSourceSpan} from "./parse_util";
+import { ParseSourceSpan } from './parse_util';
 
 export interface Node {
   sourceSpan: ParseSourceSpan;
+
   visit(visitor: Visitor, context: any): any;
 }
 
 export class Text implements Node {
   constructor(public value: string, public sourceSpan: ParseSourceSpan) {}
+
   visit(visitor: Visitor, context: any): any {
     return visitor.visitText(this, context);
   }
@@ -27,8 +29,9 @@ export class Expansion implements Node {
     public type: string,
     public cases: ExpansionCase[],
     public sourceSpan: ParseSourceSpan,
-    public switchValueSourceSpan: ParseSourceSpan
+    public switchValueSourceSpan: ParseSourceSpan,
   ) {}
+
   visit(visitor: Visitor, context: any): any {
     return visitor.visitExpansion(this, context);
   }
@@ -40,7 +43,7 @@ export class ExpansionCase implements Node {
     public expression: Node[],
     public sourceSpan: ParseSourceSpan,
     public valueSourceSpan: ParseSourceSpan,
-    public expSourceSpan: ParseSourceSpan
+    public expSourceSpan: ParseSourceSpan,
   ) {}
 
   visit(visitor: Visitor, context: any): any {
@@ -53,8 +56,9 @@ export class Attribute implements Node {
     public name: string,
     public value: string,
     public sourceSpan: ParseSourceSpan,
-    public valueSpan?: ParseSourceSpan
+    public valueSpan?: ParseSourceSpan,
   ) {}
+
   visit(visitor: Visitor, context: any): any {
     return visitor.visitAttribute(this, context);
   }
@@ -67,8 +71,9 @@ export class Element implements Node {
     public children: Node[],
     public sourceSpan: ParseSourceSpan,
     public startSourceSpan: ParseSourceSpan | null = null,
-    public endSourceSpan: ParseSourceSpan | null = null
+    public endSourceSpan: ParseSourceSpan | null = null,
   ) {}
+
   visit(visitor: Visitor, context: any): any {
     return visitor.visitElement(this, context);
   }
@@ -76,6 +81,7 @@ export class Element implements Node {
 
 export class Comment implements Node {
   constructor(public value: string | null, public sourceSpan: ParseSourceSpan) {}
+
   visit(visitor: Visitor, context: any): any {
     return visitor.visitComment(this, context);
   }
@@ -87,10 +93,15 @@ export interface Visitor {
   visit?(node: Node, context: any): any;
 
   visitElement(element: Element, context: any): any;
+
   visitAttribute(attribute: Attribute, context: any): any;
+
   visitText(text: Text, context: any): any;
+
   visitComment(comment: Comment, context: any): any;
+
   visitExpansion(expansion: Expansion, context: any): any;
+
   visitExpansionCase(expansionCase: ExpansionCase, context: any): any;
 }
 
@@ -100,7 +111,7 @@ export function visitAll(visitor: Visitor, nodes: Node[], context: any = null): 
   const visit = visitor.visit
     ? (ast: Node) => visitor.visit!(ast, context) || ast.visit(visitor, context)
     : (ast: Node) => ast.visit(visitor, context);
-  nodes.forEach(ast => {
+  nodes.forEach((ast) => {
     const astResult = visit(ast);
     if (astResult) {
       result.push(astResult);

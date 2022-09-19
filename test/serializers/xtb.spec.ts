@@ -5,7 +5,7 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import {xtbLoadToI18n} from "../../lib/src/serializers/xtb";
+import {xtbLoadToI18n} from '../../lib/src/serializers/xtb';
 
 export const XTB = `
 <translationbundle>
@@ -35,9 +35,9 @@ export const XTB = `
   <translation id="5339604010413301604"><ph name="MAP_NAME"><ex>MAP_NAME</ex></ph></translation>
 </translationbundle>`;
 
-describe("Xtb serializer", () => {
-  it("should decode xtb", () => {
+describe('Xtb serializer', () => {
+  it('should decode xtb', () => {
     const loaded = xtbLoadToI18n(XTB);
-    expect(loaded["1491627405349178954"]).toBeDefined();
+    expect(loaded['1491627405349178954']).toBeDefined();
   });
 });

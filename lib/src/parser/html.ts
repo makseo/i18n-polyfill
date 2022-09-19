@@ -1,14 +1,14 @@
-import * as html from "../ast/ast";
-import * as i18n from "../ast/i18n_ast";
-import {I18nError} from "../ast/parse_util";
-import {DEFAULT_INTERPOLATION_CONFIG, InterpolationConfig} from "../ast/interpolation_config";
-import {createI18nMessageFactory} from "./i18n";
-import {Parser, ParseTreeResult} from "../ast/parser";
-import {getHtmlTagDefinition} from "../ast/html_tags";
-import {I18nMessagesById, PlaceholderMapper} from "../serializers/serializer";
-import {MissingTranslationStrategy} from "@angular/core";
+import * as html from '../ast/ast';
+import * as i18n from '../ast/i18n_ast';
+import {I18nError} from '../ast/parse_util';
+import {DEFAULT_INTERPOLATION_CONFIG, InterpolationConfig} from '../ast/interpolation_config';
+import {createI18nMessageFactory} from './i18n';
+import {Parser, ParseTreeResult} from '../ast/parser';
+import {getHtmlTagDefinition} from '../ast/html_tags';
+import {I18nMessagesById, PlaceholderMapper} from '../serializers/serializer';
+import {MissingTranslationStrategy} from '@angular/core';
 
-const _I18N_ATTR = "i18n";
+const _I18N_ATTR = 'i18n';
 
 export interface MessageMetadata {
   meaning?: string;
@@ -29,9 +29,9 @@ export class HtmlParser extends Parser {
    * Extract translatable messages from an html AST
    */
   extractMessages(nodes: html.Node[]): ExtractionResult {
-    const visitor = new Visitor(["wrapper"]);
+    const visitor = new Visitor(['wrapper']);
     // Construct a single fake root element
-    const wrapper = new html.Element("wrapper", [], nodes, undefined!, undefined, undefined);
+    const wrapper = new html.Element('wrapper', [], nodes, undefined!, undefined, undefined);
     return visitor.extract(wrapper, this.interpolationConfig);
   }
 
@@ -40,11 +40,11 @@ export class HtmlParser extends Parser {
     translations: TranslationBundle,
     params: {[key: string]: any},
     metadata?: MessageMetadata,
-    implicitTags: string[] = []
+    implicitTags: string[] = [],
   ): ParseTreeResult {
     const visitor = new Visitor(implicitTags);
     // Construct a single fake root element
-    const wrapper = new html.Element("wrapper", [], nodes, undefined!, undefined, undefined);
+    const wrapper = new html.Element('wrapper', [], nodes, undefined!, undefined, undefined);
     return visitor.merge(wrapper, translations, this.interpolationConfig, params, metadata);
   }
 }
@@ -65,7 +65,7 @@ export class TranslationBundle {
     interpolationConfig: InterpolationConfig,
     missingTranslationStrategy: MissingTranslationStrategy,
     public mapperFactory?: (m: i18n.Message) => PlaceholderMapper,
-    console?: Console
+    console?: Console,
   ) {
     this.i18nToHtml = new I18nToHtmlVisitor(
       i18nNodesByMsgId,
@@ -73,7 +73,7 @@ export class TranslationBundle {
       mapperFactory!,
       missingTranslationStrategy,
       interpolationConfig,
-      console
+      console,
     );
   }
 
@@ -85,7 +85,7 @@ export class TranslationBundle {
     createNameMapper: (message: i18n.Message) => PlaceholderMapper | null,
     loadFct: (content: string, url: string) => I18nMessagesById,
     missingTranslationStrategy: MissingTranslationStrategy,
-    interpolationConfig: InterpolationConfig = DEFAULT_INTERPOLATION_CONFIG
+    interpolationConfig: InterpolationConfig = DEFAULT_INTERPOLATION_CONFIG,
   ): TranslationBundle {
     const i18nNodesByMsgId = loadFct(content, url);
     const digestFn = (m: i18n.Message) => digest(m);
@@ -96,7 +96,7 @@ export class TranslationBundle {
       interpolationConfig,
       missingTranslationStrategy,
       mapperFactory,
-      console
+      console,
     );
   }
 
@@ -104,7 +104,7 @@ export class TranslationBundle {
   get(srcMsg: i18n.Message, params): html.Node[] {
     const htmlRes = this.i18nToHtml.convert(srcMsg, params);
     if (htmlRes.errors.length) {
-      throw new Error(htmlRes.errors.join("\n"));
+      throw new Error(htmlRes.errors.join('\n'));
     }
 
     return htmlRes.nodes;
@@ -129,7 +129,7 @@ class I18nToHtmlVisitor implements i18n.Visitor {
     private _mapperFactory: (m: i18n.Message) => PlaceholderMapper,
     private _missingTranslationStrategy: MissingTranslationStrategy,
     private _interpolationConfig?: InterpolationConfig,
-    private _console?: Console
+    private _console?: Console,
   ) {}
 
   convert(srcMsg: i18n.Message, params: {[key: string]: any}): {nodes: html.Node[]; errors: I18nError[]} {
@@ -147,7 +147,7 @@ class I18nToHtmlVisitor implements i18n.Visitor {
 
     return {
       nodes: htmlParser.rootNodes,
-      errors: [...this._errors, ...htmlParser.errors]
+      errors: [...this._errors, ...htmlParser.errors],
     };
   }
 
@@ -156,11 +156,11 @@ class I18nToHtmlVisitor implements i18n.Visitor {
   }
 
   visitContainer(container: i18n.Container, context?: any): any {
-    return container.children.map(n => n.visit(this)).join("");
+    return container.children.map((n) => n.visit(this)).join('');
   }
 
   visitIcu(icu: i18n.Icu, context?: any): any {
-    const cases = Object.keys(icu.cases).map(k => `${k} {${icu.cases[k].visit(this)}}`);
+    const cases = Object.keys(icu.cases).map((k) => `${k} {${icu.cases[k].visit(this)}}`);
 
     // TODO(vicb): Once all format switch to using expression placeholders
     // we should throw when the placeholder is not in the source message
@@ -168,7 +168,7 @@ class I18nToHtmlVisitor implements i18n.Visitor {
       ? this._srcMsg.placeholders[icu.expression]
       : icu.expression;
 
-    return `{${exp}, ${icu.type}, ${cases.join(" ")}}`;
+    return `{${exp}, ${icu.type}, ${cases.join(' ')}}`;
   }
 
   visitPlaceholder(ph: i18n.Placeholder, context?: any): string {
@@ -182,7 +182,7 @@ class I18nToHtmlVisitor implements i18n.Visitor {
     }
 
     this._addError(ph, `Unknown placeholder "${ph.name}"`);
-    return "";
+    return '';
   }
 
   // Loaded message contains only placeholders (vs tag and icu placeholders).
@@ -191,12 +191,12 @@ class I18nToHtmlVisitor implements i18n.Visitor {
   visitTagPlaceholder(ph: i18n.TagPlaceholder, context?: any): string {
     const tag = `${ph.tag}`;
     const attrs = Object.keys(ph.attrs)
-      .map(name => `${name}="${ph.attrs[name]}"`)
-      .join(" ");
+      .map((name) => `${name}="${ph.attrs[name]}"`)
+      .join(' ');
     if (ph.isVoid) {
       return `<${tag} ${attrs}/>`;
     }
-    const children = ph.children.map((c: i18n.Node) => c.visit(this)).join("");
+    const children = ph.children.map((c: i18n.Node) => c.visit(this)).join('');
     return `<${tag} ${attrs}>${children}</${tag}>`;
   }
 
@@ -241,7 +241,7 @@ class I18nToHtmlVisitor implements i18n.Visitor {
       nodes = srcMsg.nodes;
       this._mapper = (name: string) => name;
     }
-    const text = nodes.map(node => node.visit(this)).join("");
+    const text = nodes.map((node) => node.visit(this)).join('');
     const context = this._contextStack.pop()!;
     this._srcMsg = context.msg;
     this._mapper = context.mapper;
@@ -249,7 +249,7 @@ class I18nToHtmlVisitor implements i18n.Visitor {
   }
 
   private convertToValue(placeholder: string): string {
-    const param = placeholder.replace(this._interpolationConfig.start, "").replace(this._interpolationConfig.end, "");
+    const param = placeholder.replace(this._interpolationConfig.start, '').replace(this._interpolationConfig.end, '');
     return this._paramKeys.indexOf(param) !== -1 ? this._params[param] : placeholder;
   }
 
@@ -260,7 +260,7 @@ class I18nToHtmlVisitor implements i18n.Visitor {
 
 enum VisitorMode {
   Extract,
-  Merge
+  Merge,
 }
 
 /**
@@ -310,7 +310,7 @@ class Visitor implements html.Visitor {
     node.visit(this, null);
 
     if (this.inI18nBlock) {
-      this._reportError(node, "Unclosed block");
+      this._reportError(node, 'Unclosed block');
     }
 
     return new ExtractionResult(this.messages, this.errors);
@@ -324,7 +324,7 @@ class Visitor implements html.Visitor {
     translations: TranslationBundle,
     interpolationConfig: InterpolationConfig,
     params: {[key: string]: any},
-    metadata: MessageMetadata = {}
+    metadata: MessageMetadata = {},
   ): ParseTreeResult {
     this.init(VisitorMode.Merge, interpolationConfig, params);
     this.translations = translations;
@@ -333,7 +333,7 @@ class Visitor implements html.Visitor {
     const translatedNode = node.visit(this, null);
 
     if (this.inI18nBlock) {
-      this._reportError(node, "Unclosed block");
+      this._reportError(node, 'Unclosed block');
     }
 
     return new ParseTreeResult(translatedNode.children, this.errors);
@@ -349,7 +349,7 @@ class Visitor implements html.Visitor {
         expression,
         icuCase.sourceSpan,
         icuCase.valueSourceSpan,
-        icuCase.expSourceSpan
+        icuCase.expSourceSpan,
       );
     }
   }
@@ -401,7 +401,8 @@ class Visitor implements html.Visitor {
     // - top level nodes with the (implicit) "i18n" attribute if not already in a section
     // - ICU messages
     const i18nAttr = getI18nAttr(el);
-    const isImplicit = this._implicitTags.some(tag => el.name === tag) && !this.inIcu && !this.isInTranslatableSection;
+    const isImplicit =
+      this._implicitTags.some((tag) => el.name === tag) && !this.inIcu && !this.isInTranslatableSection;
     const isTopLevelImplicit = !wasInImplicitNode && isImplicit;
     this.inImplicitNode = wasInImplicitNode || isImplicit;
     if (!this.isInTranslatableSection && !this.inIcu) {
@@ -423,7 +424,7 @@ class Visitor implements html.Visitor {
       }
     } else {
       if (i18nAttr || isTopLevelImplicit) {
-        this._reportError(el, "Could not mark an element as translatable inside a translatable section");
+        this._reportError(el, 'Could not mark an element as translatable inside a translatable section');
       }
 
       if (this.mode === VisitorMode.Extract) {
@@ -434,7 +435,7 @@ class Visitor implements html.Visitor {
 
     if (this.mode === VisitorMode.Merge) {
       const visitNodes = translatedChildNodes || el.children;
-      visitNodes.forEach(child => {
+      visitNodes.forEach((child) => {
         const visited = child.visit(this, context);
         if (visited && !this.isInTranslatableSection) {
           // Do not add the children from translatable sections (= i18n blocks here)
@@ -455,7 +456,7 @@ class Visitor implements html.Visitor {
   }
 
   visitAttribute(attribute: html.Attribute, context: any): any {
-    throw new Error("unreachable code");
+    throw new Error('unreachable code');
   }
 
   private init(mode: VisitorMode, interpolationConfig: InterpolationConfig, params: {[key: string]: any} = {}): void {
@@ -473,7 +474,7 @@ class Visitor implements html.Visitor {
   }
 
   // add a translatable message
-  private addMessage(ast: html.Node[], {meaning = "", description = "", id = ""} = {}): i18n.Message | null {
+  private addMessage(ast: html.Node[], {meaning = '', description = '', id = ''} = {}): i18n.Message | null {
     if (
       ast.length === 0 ||
       (ast.length === 1 && ast[0] instanceof html.Attribute && !(ast[0] as html.Attribute).value)
@@ -520,7 +521,7 @@ class Visitor implements html.Visitor {
    */
   private openTranslatableSection(node: html.Node): void {
     if (this.isInTranslatableSection) {
-      this._reportError(node, "Unexpected section start");
+      this._reportError(node, 'Unexpected section start');
     } else {
       this.msgCountAtSectionStart = this.messages.length;
     }
@@ -553,14 +554,14 @@ class Visitor implements html.Visitor {
    */
   private _closeTranslatableSection(node: html.Node, directChildren: html.Node[]): void {
     if (!this.isInTranslatableSection) {
-      this._reportError(node, "Unexpected section end");
+      this._reportError(node, 'Unexpected section end');
       return;
     }
 
     const startIndex = this.msgCountAtSectionStart;
     const significantChildren: number = directChildren.reduce(
       (count: number, n: html.Node): number => count + (n instanceof html.Comment ? 0 : 1),
-      0
+      0,
     );
 
     if (significantChildren === 1) {
@@ -582,5 +583,5 @@ class Visitor implements html.Visitor {
 }
 
 function getI18nAttr(p: html.Element): html.Attribute | null {
-  return p.attrs.find(attr => attr.name === _I18N_ATTR) || null;
+  return p.attrs.find((attr) => attr.name === _I18N_ATTR) || null;
 }

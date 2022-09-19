@@ -5,8 +5,8 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import {xliff2Digest, xliff2LoadToI18n, xliff2LoadToXml, xliff2Write} from "../../lib/src/serializers/xliff2";
-import {MessageBundle} from "../../lib/extractor/src/message-bundle";
+import {xliff2Digest, xliff2LoadToI18n, xliff2LoadToXml, xliff2Write} from '../../lib/src/serializers/xliff2';
+import {MessageBundle} from '../../lib/extractor/src/message-bundle';
 
 const XLIFF2 = `<?xml version="1.0" encoding="UTF-8" ?>
 <xliff version="2.0" xmlns="urn:oasis:names:tc:xliff:document:2.0" srcLang="en" trgLang="fr">
@@ -121,24 +121,24 @@ lignes</target>
 </xliff>
 `;
 
-describe("Xliff2 serializer", () => {
-  it("should decode xliff2", () => {
+describe('Xliff2 serializer', () => {
+  it('should decode xliff2', () => {
     const loaded = xliff2LoadToI18n(XLIFF2);
-    expect(loaded["1933478729560469763"]).toEqual([
+    expect(loaded['1933478729560469763']).toEqual([
       {
         sourceSpan: {
           details: null,
-          end: {col: 22, file: {content: "etubirtta elbatalsnart", url: ""}, line: 0, offset: 22},
-          start: {col: 0, file: {content: "etubirtta elbatalsnart", url: ""}, line: 0, offset: 0}
+          end: {col: 22, file: {content: 'etubirtta elbatalsnart', url: ''}, line: 0, offset: 22},
+          start: {col: 0, file: {content: 'etubirtta elbatalsnart', url: ''}, line: 0, offset: 0},
         },
-        value: "etubirtta elbatalsnart"
-      }
+        value: 'etubirtta elbatalsnart',
+      },
     ] as any);
   });
 
-  it("should write xliff2", () => {
-    const messageBundle = new MessageBundle("en");
-    messageBundle.updateFromTemplate("This is a test message {sex, select, other {deeply nested}}", "file.ts");
+  it('should write xliff2', () => {
+    const messageBundle = new MessageBundle('en');
+    messageBundle.updateFromTemplate('This is a test message {sex, select, other {deeply nested}}', 'file.ts');
     expect(messageBundle.write(xliff2Write, xliff2Digest)).toEqual(`<?xml version="1.0" encoding="UTF-8" ?>
 <xliff version="2.0" xmlns="urn:oasis:names:tc:xliff:document:2.0" srcLang="en">
   <file original="ng.template" id="ngi18n">
@@ -163,16 +163,16 @@ describe("Xliff2 serializer", () => {
 `);
   });
 
-  it("should write xliff2 with I18nDef", () => {
-    const messageBundle = new MessageBundle("en");
+  it('should write xliff2 with I18nDef', () => {
+    const messageBundle = new MessageBundle('en');
     messageBundle.updateFromTemplate(
       {
-        value: "This is a test message",
-        id: "customId",
-        meaning: "Custom meaning",
-        description: "Custom desc"
+        value: 'This is a test message',
+        id: 'customId',
+        meaning: 'Custom meaning',
+        description: 'Custom desc',
       },
-      "file.ts"
+      'file.ts',
     );
     expect(messageBundle.write(xliff2Write, xliff2Digest)).toEqual(`<?xml version="1.0" encoding="UTF-8" ?>
 <xliff version="2.0" xmlns="urn:oasis:names:tc:xliff:document:2.0" srcLang="en">
@@ -192,9 +192,9 @@ describe("Xliff2 serializer", () => {
 `);
   });
 
-  it("should write xliff2 with merged content", () => {
-    const messageBundle = new MessageBundle("en");
-    messageBundle.updateFromTemplate("This is a test message {sex, select, other {deeply nested}}", "file.ts");
+  it('should write xliff2 with merged content', () => {
+    const messageBundle = new MessageBundle('en');
+    messageBundle.updateFromTemplate('This is a test message {sex, select, other {deeply nested}}', 'file.ts');
     expect(messageBundle.write(xliff2Write, xliff2Digest, xliff2LoadToXml(XLIFF2)))
       .toEqual(`<?xml version="1.0" encoding="UTF-8" ?>
 <xliff version="2.0" xmlns="urn:oasis:names:tc:xliff:document:2.0" srcLang="en">

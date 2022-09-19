@@ -7,11 +7,11 @@
  */
 
 /* tslint:disable */
-import * as chars from "./chars";
-import {ParseError, ParseLocation, ParseSourceFile, ParseSourceSpan} from "./parse_util";
+import * as chars from './chars';
+import { ParseError, ParseLocation, ParseSourceFile, ParseSourceSpan } from './parse_util';
 
-import {DEFAULT_INTERPOLATION_CONFIG, InterpolationConfig} from "./interpolation_config";
-import {NAMED_ENTITIES, TagContentType, TagDefinition} from "./tags";
+import { DEFAULT_INTERPOLATION_CONFIG, InterpolationConfig } from './interpolation_config';
+import { NAMED_ENTITIES, TagContentType, TagDefinition } from './tags';
 
 export enum TokenType {
   TAG_OPEN_START,
@@ -33,7 +33,7 @@ export enum TokenType {
   EXPANSION_CASE_EXP_START,
   EXPANSION_CASE_EXP_END,
   EXPANSION_FORM_END,
-  EOF
+  EOF,
 }
 
 export class Token {
@@ -55,20 +55,20 @@ export function tokenize(
   url: string,
   getTagDefinition: (tagName: string) => TagDefinition,
   tokenizeExpansionForms = false,
-  interpolationConfig: InterpolationConfig = DEFAULT_INTERPOLATION_CONFIG
+  interpolationConfig: InterpolationConfig = DEFAULT_INTERPOLATION_CONFIG,
 ): TokenizeResult {
   return new Tokenizer(
     new ParseSourceFile(source, url),
     getTagDefinition,
     tokenizeExpansionForms,
-    interpolationConfig
+    interpolationConfig,
   ).tokenize();
 }
 
 const _CR_OR_CRLF_REGEXP = /\r\n?/g;
 
 function _unexpectedCharacterErrorMsg(charCode: number): string {
-  const char = charCode === chars.$EOF ? "EOF" : String.fromCharCode(charCode);
+  const char = charCode === chars.$EOF ? 'EOF' : String.fromCharCode(charCode);
   return `Unexpected character "${char}"`;
 }
 
@@ -108,7 +108,7 @@ class Tokenizer {
     private _file: ParseSourceFile,
     private _getTagDefinition: (tagName: string) => TagDefinition,
     private _tokenizeIcu: boolean,
-    private _interpolationConfig: InterpolationConfig = DEFAULT_INTERPOLATION_CONFIG
+    private _interpolationConfig: InterpolationConfig = DEFAULT_INTERPOLATION_CONFIG,
   ) {
     this._input = _file.content;
     this._length = _file.content.length;
@@ -120,7 +120,7 @@ class Tokenizer {
     // In order to keep the original position in the source, we can not
     // pre-process it.
     // Instead CRs are processed right before instantiating the tokens.
-    return content.replace(_CR_OR_CRLF_REGEXP, "\n");
+    return content.replace(_CR_OR_CRLF_REGEXP, '\n');
   }
 
   tokenize(): TokenizeResult {
@@ -193,7 +193,7 @@ class Tokenizer {
 
   private _getSpan(
     start: ParseLocation = this._getLocation(),
-    end: ParseLocation = this._getLocation()
+    end: ParseLocation = this._getLocation(),
   ): ParseSourceSpan {
     return new ParseSourceSpan(start, end);
   }
@@ -346,7 +346,7 @@ class Tokenizer {
       this._attemptCharCodeUntilFn(isNamedEntityEnd);
       if (this._peek !== chars.$SEMICOLON) {
         this._restorePosition(startPosition);
-        return "&";
+        return '&';
       }
       this._advance();
       const name = this._input.substring(start.offset + 1, this._index - 1);
@@ -376,23 +376,23 @@ class Tokenizer {
         parts.push(this._readChar(decodeEntities));
       }
     }
-    return this._endToken([this._processCarriageReturns(parts.join(""))], tagCloseStart);
+    return this._endToken([this._processCarriageReturns(parts.join(''))], tagCloseStart);
   }
 
   private _consumeComment(start: ParseLocation) {
     this._beginToken(TokenType.COMMENT_START, start);
     this._requireCharCode(chars.$MINUS);
     this._endToken([]);
-    const textToken = this._consumeRawText(false, chars.$MINUS, () => this._attemptStr("->"));
+    const textToken = this._consumeRawText(false, chars.$MINUS, () => this._attemptStr('->'));
     this._beginToken(TokenType.COMMENT_END, textToken.sourceSpan.end);
     this._endToken([]);
   }
 
   private _consumeCdata(start: ParseLocation) {
     this._beginToken(TokenType.CDATA_START, start);
-    this._requireStr("CDATA[");
+    this._requireStr('CDATA[');
     this._endToken([]);
-    const textToken = this._consumeRawText(false, chars.$RBRACKET, () => this._attemptStr("]>"));
+    const textToken = this._consumeRawText(false, chars.$RBRACKET, () => this._attemptStr(']>'));
     this._beginToken(TokenType.CDATA_END, textToken.sourceSpan.end);
     this._endToken([]);
   }
@@ -452,7 +452,7 @@ class Tokenizer {
         this._restorePosition(savedPos);
         // Back to back text tokens are merged at the end
         this._beginToken(TokenType.TEXT, start);
-        this._endToken(["<"]);
+        this._endToken(['<']);
         return;
       }
 
@@ -502,7 +502,7 @@ class Tokenizer {
       while (this._peek !== quoteChar) {
         parts.push(this._readChar(true));
       }
-      value = parts.join("");
+      value = parts.join('');
       this._advance();
     } else {
       const valueStart = this._index;
@@ -600,7 +600,7 @@ class Tokenizer {
       }
     } while (!this._isTextEnd());
 
-    this._endToken([this._processCarriageReturns(parts.join(""))]);
+    this._endToken([this._processCarriageReturns(parts.join(''))]);
   }
 
   private _isTextEnd(): boolean {

@@ -1,12 +1,12 @@
 {
-  "extends": "../tsconfig.json",
+  "extends": "./tsconfig.json",
   "compilerOptions": {
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "outDir": "../out-tsc/spec",
     "module": "commonjs",
-    "target": "es6",
-    "baseUrl": ""
+    "baseUrl": "tsconfig.spec",
+    "types": ["jest"]
   },
   "files": [
     "**/*.spec.ts"

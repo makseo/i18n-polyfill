@@ -7,36 +7,36 @@
  */
 
 const TAG_TO_PLACEHOLDER_NAMES: {[k: string]: string} = {
-  'A': 'LINK',
-  'B': 'BOLD_TEXT',
-  'BR': 'LINE_BREAK',
-  'EM': 'EMPHASISED_TEXT',
-  'H1': 'HEADING_LEVEL1',
-  'H2': 'HEADING_LEVEL2',
-  'H3': 'HEADING_LEVEL3',
-  'H4': 'HEADING_LEVEL4',
-  'H5': 'HEADING_LEVEL5',
-  'H6': 'HEADING_LEVEL6',
-  'HR': 'HORIZONTAL_RULE',
-  'I': 'ITALIC_TEXT',
-  'LI': 'LIST_ITEM',
-  'LINK': 'MEDIA_LINK',
-  'OL': 'ORDERED_LIST',
-  'P': 'PARAGRAPH',
-  'Q': 'QUOTATION',
-  'S': 'STRIKETHROUGH_TEXT',
-  'SMALL': 'SMALL_TEXT',
-  'SUB': 'SUBSTRIPT',
-  'SUP': 'SUPERSCRIPT',
-  'TBODY': 'TABLE_BODY',
-  'TD': 'TABLE_CELL',
-  'TFOOT': 'TABLE_FOOTER',
-  'TH': 'TABLE_HEADER_CELL',
-  'THEAD': 'TABLE_HEADER',
-  'TR': 'TABLE_ROW',
-  'TT': 'MONOSPACED_TEXT',
-  'U': 'UNDERLINED_TEXT',
-  'UL': 'UNORDERED_LIST',
+  A: 'LINK',
+  B: 'BOLD_TEXT',
+  BR: 'LINE_BREAK',
+  EM: 'EMPHASISED_TEXT',
+  H1: 'HEADING_LEVEL1',
+  H2: 'HEADING_LEVEL2',
+  H3: 'HEADING_LEVEL3',
+  H4: 'HEADING_LEVEL4',
+  H5: 'HEADING_LEVEL5',
+  H6: 'HEADING_LEVEL6',
+  HR: 'HORIZONTAL_RULE',
+  I: 'ITALIC_TEXT',
+  LI: 'LIST_ITEM',
+  LINK: 'MEDIA_LINK',
+  OL: 'ORDERED_LIST',
+  P: 'PARAGRAPH',
+  Q: 'QUOTATION',
+  S: 'STRIKETHROUGH_TEXT',
+  SMALL: 'SMALL_TEXT',
+  SUB: 'SUBSTRIPT',
+  SUP: 'SUPERSCRIPT',
+  TBODY: 'TABLE_BODY',
+  TD: 'TABLE_CELL',
+  TFOOT: 'TABLE_FOOTER',
+  TH: 'TABLE_HEADER_CELL',
+  THEAD: 'TABLE_HEADER',
+  TR: 'TABLE_ROW',
+  TT: 'MONOSPACED_TEXT',
+  U: 'UNDERLINED_TEXT',
+  UL: 'UNORDERED_LIST',
 };
 
 /**
@@ -102,13 +102,18 @@ export class PlaceholderRegistry {
   // Generate a hash for a tag - does not take attribute order into account
   private _hashTag(tag: string, attrs: {[k: string]: string}, isVoid: boolean): string {
     const start = `<${tag}`;
-    const strAttrs = Object.keys(attrs).sort().map((name) => ` ${name}=${attrs[name]}`).join('');
+    const strAttrs = Object.keys(attrs)
+      .sort()
+      .map((name) => ` ${name}=${attrs[name]}`)
+      .join('');
     const end = isVoid ? '/>' : `></${tag}>`;
 
     return start + strAttrs + end;
   }
 
-  private _hashClosingTag(tag: string): string { return this._hashTag(`/${tag}`, {}, false); }
+  private _hashClosingTag(tag: string): string {
+    return this._hashTag(`/${tag}`, {}, false);
+  }
 
   private _generateUniqueName(base: string): string {
     const seen = this._placeHolderNameCounts.hasOwnProperty(base);

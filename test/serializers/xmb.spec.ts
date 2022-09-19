@@ -5,8 +5,8 @@
  * Use of this source code is governed by an MIT-style license that can be
  * found in the LICENSE file at https://angular.io/license
  */
-import {xmbDigest, xmbLoadToXml, xmbMapper, xmbWrite} from "../../lib/src/serializers/xmb";
-import {MessageBundle} from "../../lib/extractor/src/message-bundle";
+import {xmbDigest, xmbLoadToXml, xmbMapper, xmbWrite} from '../../lib/src/serializers/xmb';
+import {MessageBundle} from '../../lib/extractor/src/message-bundle';
 
 const XMB = `<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE messagebundle [
@@ -44,10 +44,10 @@ lines</msg>
 </messagebundle>
 `;
 
-describe("Xmb serializer", () => {
-  it("should write xmb", () => {
-    const messageBundle = new MessageBundle("en");
-    messageBundle.updateFromTemplate("This is a test message {sex, select, other {deeply nested}}", "file.ts");
+describe('Xmb serializer', () => {
+  it('should write xmb', () => {
+    const messageBundle = new MessageBundle('en');
+    messageBundle.updateFromTemplate('This is a test message {sex, select, other {deeply nested}}', 'file.ts');
     expect(messageBundle.write(xmbWrite, xmbDigest, {}, xmbMapper)).toEqual(`<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE messagebundle [
 <!ELEMENT messagebundle (msg)*>
@@ -77,16 +77,16 @@ describe("Xmb serializer", () => {
 `);
   });
 
-  it("should write xmb with I18nDef", () => {
-    const messageBundle = new MessageBundle("en");
+  it('should write xmb with I18nDef', () => {
+    const messageBundle = new MessageBundle('en');
     messageBundle.updateFromTemplate(
       {
-        value: "This is a test message",
-        id: "customId",
-        meaning: "Custom meaning",
-        description: "Custom desc"
+        value: 'This is a test message',
+        id: 'customId',
+        meaning: 'Custom meaning',
+        description: 'Custom desc',
       },
-      "file.ts"
+      'file.ts',
     );
     expect(messageBundle.write(xmbWrite, xmbDigest, {}, xmbMapper)).toEqual(`<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE messagebundle [
@@ -116,9 +116,9 @@ describe("Xmb serializer", () => {
 `);
   });
 
-  it("should write xmb with merged content", () => {
-    const messageBundle = new MessageBundle("en");
-    messageBundle.updateFromTemplate("This is a test message {sex, select, other {deeply nested}}", "file.ts");
+  it('should write xmb with merged content', () => {
+    const messageBundle = new MessageBundle('en');
+    messageBundle.updateFromTemplate('This is a test message {sex, select, other {deeply nested}}', 'file.ts');
     expect(messageBundle.write(xmbWrite, xmbDigest, xmbLoadToXml(XMB), xmbMapper))
       .toEqual(`<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE messagebundle [

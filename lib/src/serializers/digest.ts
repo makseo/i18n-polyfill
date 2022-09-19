@@ -6,10 +6,10 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import * as i18n from "../ast/i18n_ast";
+import * as i18n from '../ast/i18n_ast';
 
 export function digest(message: i18n.Message): string {
-  return message.id || sha1(serializeNodes(message.nodes).join("") + `[${message.meaning}]`);
+  return message.id || sha1(serializeNodes(message.nodes).join('') + `[${message.meaning}]`);
 }
 
 export function decimalDigest(message: i18n.Message): string {
@@ -18,8 +18,8 @@ export function decimalDigest(message: i18n.Message): string {
   }
 
   const visitor = new SerializerIgnoreIcuExpVisitor();
-  const parts = message.nodes.map(a => a.visit(visitor, null));
-  return computeMsgId(parts.join(""), message.meaning);
+  const parts = message.nodes.map((a) => a.visit(visitor, null));
+  return computeMsgId(parts.join(''), message.meaning);
 }
 
 /**
@@ -35,18 +35,18 @@ class SerializerVisitor implements i18n.Visitor {
   }
 
   visitContainer(container: i18n.Container, context: any): any {
-    return `[${container.children.map(child => child.visit(this)).join(", ")}]`;
+    return `[${container.children.map((child) => child.visit(this)).join(', ')}]`;
   }
 
   visitIcu(icu: i18n.Icu, context: any): any {
     const strCases = Object.keys(icu.cases).map((k: string) => `${k} {${icu.cases[k].visit(this)}}`);
-    return `{${icu.expression}, ${icu.type}, ${strCases.join(", ")}}`;
+    return `{${icu.expression}, ${icu.type}, ${strCases.join(', ')}}`;
   }
 
   visitTagPlaceholder(ph: i18n.TagPlaceholder, context: any): any {
     return ph.isVoid
       ? `<ph tag name="${ph.startName}"/>`
-      : `<ph tag name="${ph.startName}">${ph.children.map(child => child.visit(this)).join(", ")}</ph name="${
+      : `<ph tag name="${ph.startName}">${ph.children.map((child) => child.visit(this)).join(', ')}</ph name="${
           ph.closeName
         }">`;
   }
@@ -63,7 +63,7 @@ class SerializerVisitor implements i18n.Visitor {
 const serializerVisitor = new SerializerVisitor();
 
 export function serializeNodes(nodes: i18n.Node[]): string[] {
-  return nodes.map(a => a.visit(serializerVisitor, null));
+  return nodes.map((a) => a.visit(serializerVisitor, null));
 }
 
 /**
@@ -77,7 +77,7 @@ class SerializerIgnoreIcuExpVisitor extends SerializerVisitor {
   visitIcu(icu: i18n.Icu, context: any): any {
     const strCases = Object.keys(icu.cases).map((k: string) => `${k} {${icu.cases[k].visit(this)}}`);
     // Do not take the expression into account
-    return `{${icu.type}, ${strCases.join(", ")}}`;
+    return `{${icu.type}, ${strCases.join(', ')}}`;
   }
 }
 
@@ -97,7 +97,7 @@ export function sha1(str: string): string {
   const w = new Array(80);
   let [a, b, c, d, e]: number[] = [0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476, 0xc3d2e1f0];
 
-  words32[len >> 5] |= 0x80 << (24 - len % 32);
+  words32[len >> 5] |= 0x80 << (24 - (len % 32));
   words32[(((len + 64) >> 9) << 4) + 15] = len;
 
   for (let i = 0; i < words32.length; i += 16) {
@@ -223,13 +223,14 @@ function mix([a, b, c]: [number, number, number]): [number, number, number] {
   c ^= b >>> 15;
   return [a, b, c];
 }
+
 // clang-format on
 
 // Utils
 
 enum Endian {
   Little,
-  Big
+  Big,
 }
 
 function add32(a: number, b: number): number {
@@ -295,11 +296,11 @@ function wordAt(str: string, index: number, endian: Endian): number {
 }
 
 function words32ToByteString(words32: number[]): string {
-  return words32.reduce((str, word) => str + word32ToByteString(word), "");
+  return words32.reduce((str, word) => str + word32ToByteString(word), '');
 }
 
 function word32ToByteString(word: number): string {
-  let str = "";
+  let str = '';
   for (let i = 0; i < 4; i++) {
     str += String.fromCharCode((word >>> (8 * (3 - i))) & 0xff);
   }
@@ -307,7 +308,7 @@ function word32ToByteString(word: number): string {
 }
 
 function byteStringToHexString(str: string): string {
-  let hex = "";
+  let hex = '';
   for (let i = 0; i < str.length; i++) {
     const b = byteAt(str, i);
     hex += (b >>> 4).toString(16) + (b & 0x0f).toString(16);
@@ -317,23 +318,20 @@ function byteStringToHexString(str: string): string {
 
 // based on http://www.danvk.org/hex2dec.html (JS can not handle more than 56b)
 function byteStringToDecString(str: string): string {
-  let decimal = "";
-  let toThePower = "1";
+  let decimal = '';
+  let toThePower = '1';
 
   for (let i = str.length - 1; i >= 0; i--) {
     decimal = addBigInt(decimal, numberTimesBigInt(byteAt(str, i), toThePower));
     toThePower = numberTimesBigInt(256, toThePower);
   }
 
-  return decimal
-    .split("")
-    .reverse()
-    .join("");
+  return decimal.split('').reverse().join('');
 }
 
 // x and y decimal, lowest significant digit first
 function addBigInt(x: string, y: string): string {
-  let sum = "";
+  let sum = '';
   const len = Math.max(x.length, y.length);
   for (let i = 0, carry = 0; i < len || carry; i++) {
     const tmpSum = carry + +(x[i] || 0) + +(y[i] || 0);
@@ -350,7 +348,7 @@ function addBigInt(x: string, y: string): string {
 }
 
 function numberTimesBigInt(num: number, b: string): string {
-  let product = "";
+  let product = '';
   let bToThePower = b;
   for (; num !== 0; num = num >>> 1) {
     if (num & 1) {
@@ -362,7 +360,7 @@ function numberTimesBigInt(num: number, b: string): string {
 }
 
 function utf8Encode(str: string): string {
-  let encoded = "";
+  let encoded = '';
   for (let index = 0; index < str.length; index++) {
     let codePoint = str.charCodeAt(index);
 
@@ -384,14 +382,14 @@ function utf8Encode(str: string): string {
       encoded += String.fromCharCode(
         (codePoint >> 12) | 0xe0,
         ((codePoint >> 6) & 0x3f) | 0x80,
-        (codePoint & 0x3f) | 0x80
+        (codePoint & 0x3f) | 0x80,
       );
     } else if (codePoint <= 0x1fffff) {
       encoded += String.fromCharCode(
         ((codePoint >> 18) & 0x07) | 0xf0,
         ((codePoint >> 12) & 0x3f) | 0x80,
         ((codePoint >> 6) & 0x3f) | 0x80,
-        (codePoint & 0x3f) | 0x80
+        (codePoint & 0x3f) | 0x80,
       );
     }
   }

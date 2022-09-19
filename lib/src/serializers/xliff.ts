@@ -6,25 +6,25 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import * as ml from "../ast/ast";
-import * as i18n from "../ast/i18n_ast";
-import * as xml from "./xml_helper";
-import {I18nError} from "../ast/parse_util";
-import {Parser} from "../ast/parser";
-import {getXmlTagDefinition} from "../ast/xml_tags";
-import {HtmlToXmlParser, I18nMessagesById, XmlMessagesById} from "./serializer";
-import {digest} from "./digest";
+import * as ml from '../ast/ast';
+import * as i18n from '../ast/i18n_ast';
+import * as xml from './xml_helper';
+import {I18nError} from '../ast/parse_util';
+import {Parser} from '../ast/parser';
+import {getXmlTagDefinition} from '../ast/xml_tags';
+import {HtmlToXmlParser, I18nMessagesById, XmlMessagesById} from './serializer';
+import {digest} from './digest';
 
-const _VERSION = "1.2";
-const _XMLNS = "urn:oasis:names:tc:xliff:document:1.2";
-const _PLACEHOLDER_TAG = "x";
-const _FILE_TAG = "file";
-const _SOURCE_TAG = "source";
-const _TARGET_TAG = "target";
-const _UNIT_TAG = "trans-unit";
-const _CONTEXT_GROUP_TAG = "context-group";
-const _CONTEXT_TAG = "context";
-const _DEFAULT_SOURCE_LANG = "en";
+const _VERSION = '1.2';
+const _XMLNS = 'urn:oasis:names:tc:xliff:document:1.2';
+const _PLACEHOLDER_TAG = 'x';
+const _FILE_TAG = 'file';
+const _SOURCE_TAG = 'source';
+const _TARGET_TAG = 'target';
+const _UNIT_TAG = 'trans-unit';
+const _CONTEXT_GROUP_TAG = 'context-group';
+const _CONTEXT_TAG = 'context';
+const _DEFAULT_SOURCE_LANG = 'en';
 
 export function xliffLoadToI18n(content: string): I18nMessagesById {
   // xliff to xml nodes
@@ -35,14 +35,14 @@ export function xliffLoadToI18n(content: string): I18nMessagesById {
   const i18nMessagesById: {[msgId: string]: i18n.Node[]} = {};
   const converter = new XmlToI18n();
 
-  Object.keys(msgIdToHtml).forEach(msgId => {
+  Object.keys(msgIdToHtml).forEach((msgId) => {
     const {i18nNodes, errors: e} = converter.convert(msgIdToHtml[msgId]);
     errors.push(...e);
     i18nMessagesById[msgId] = i18nNodes;
   });
 
   if (errors.length) {
-    throw new Error(`xliff parse errors:\n${errors.join("\n")}`);
+    throw new Error(`xliff parse errors:\n${errors.join('\n')}`);
   }
 
   return i18nMessagesById;
@@ -54,7 +54,7 @@ export function xliffLoadToXml(content: string): XmlMessagesById {
   const {xmlMessagesById, errors} = parser.parse(content);
 
   if (errors.length) {
-    throw new Error(`xliff parse errors:\n${errors.join("\n")}`);
+    throw new Error(`xliff parse errors:\n${errors.join('\n')}`);
   }
 
   return xmlMessagesById;
@@ -66,38 +66,38 @@ export function xliffWrite(messages: i18n.Message[], locale: string | null, exis
   const visitor = new WriteVisitor();
   const transUnits: xml.Node[] = existingNodes && existingNodes.length ? [new xml.CR(6), ...existingNodes] : [];
 
-  messages.forEach(message => {
+  messages.forEach((message) => {
     const contextTags: xml.Node[] = [];
     message.sources.forEach((source: i18n.MessageSpan) => {
-      const contextGroupTag = new xml.Tag(_CONTEXT_GROUP_TAG, {purpose: "location"});
+      const contextGroupTag = new xml.Tag(_CONTEXT_GROUP_TAG, {purpose: 'location'});
       contextGroupTag.children.push(
         new xml.CR(10),
-        new xml.Tag(_CONTEXT_TAG, {"context-type": "sourcefile"}, [new xml.Text(source.filePath)]),
+        new xml.Tag(_CONTEXT_TAG, {'context-type': 'sourcefile'}, [new xml.Text(source.filePath)]),
         new xml.CR(10),
-        new xml.Tag(_CONTEXT_TAG, {"context-type": "linenumber"}, [new xml.Text(`${source.startLine}`)]),
-        new xml.CR(8)
+        new xml.Tag(_CONTEXT_TAG, {'context-type': 'linenumber'}, [new xml.Text(`${source.startLine}`)]),
+        new xml.CR(8),
       );
       contextTags.push(new xml.CR(8), contextGroupTag);
     });
 
-    const transUnit = new xml.Tag(_UNIT_TAG, {id: message.id, datatype: "html"});
+    const transUnit = new xml.Tag(_UNIT_TAG, {id: message.id, datatype: 'html'});
     transUnit.children.push(
       new xml.CR(8),
       new xml.Tag(_SOURCE_TAG, {}, visitor.serialize(message.nodes)),
-      ...contextTags
+      ...contextTags,
     );
 
     if (message.description) {
       transUnit.children.push(
         new xml.CR(8),
-        new xml.Tag("note", {priority: "1", from: "description"}, [new xml.Text(message.description)])
+        new xml.Tag('note', {priority: '1', from: 'description'}, [new xml.Text(message.description)]),
       );
     }
 
     if (message.meaning) {
       transUnit.children.push(
         new xml.CR(8),
-        new xml.Tag("note", {priority: "1", from: "meaning"}, [new xml.Text(message.meaning)])
+        new xml.Tag('note', {priority: '1', from: 'meaning'}, [new xml.Text(message.meaning)]),
       );
     }
 
@@ -106,19 +106,19 @@ export function xliffWrite(messages: i18n.Message[], locale: string | null, exis
     transUnits.push(new xml.CR(6), transUnit);
   });
 
-  const body = new xml.Tag("body", {}, [...transUnits, new xml.CR(4)]);
+  const body = new xml.Tag('body', {}, [...transUnits, new xml.CR(4)]);
   const file = new xml.Tag(
-    "file",
+    'file',
     {
-      "source-language": locale || _DEFAULT_SOURCE_LANG,
-      datatype: "plaintext",
-      original: "ng2.template"
+      'source-language': locale || _DEFAULT_SOURCE_LANG,
+      datatype: 'plaintext',
+      original: 'ng2.template',
     },
-    [new xml.CR(4), body, new xml.CR(2)]
+    [new xml.CR(4), body, new xml.CR(2)],
   );
-  const xliff = new xml.Tag("xliff", {version: _VERSION, xmlns: _XMLNS}, [new xml.CR(2), file, new xml.CR()]);
+  const xliff = new xml.Tag('xliff', {version: _VERSION, xmlns: _XMLNS}, [new xml.CR(2), file, new xml.CR()]);
 
-  return xml.serialize([new xml.Declaration({version: "1.0", encoding: "UTF-8"}), new xml.CR(), xliff, new xml.CR()]);
+  return xml.serialize([new xml.Declaration({version: '1.0', encoding: 'UTF-8'}), new xml.CR(), xliff, new xml.CR()]);
 }
 
 export const xliffDigest = digest;
@@ -133,13 +133,13 @@ class XliffParser implements ml.Visitor {
     this._unitMlString = null;
     this._msgIdToHtml = {};
 
-    const parser = new Parser(getXmlTagDefinition).parse(content, "", false);
+    const parser = new Parser(getXmlTagDefinition).parse(content, '', false);
     this._errors = parser.errors;
     ml.visitAll(this, parser.rootNodes, null);
 
     return {
       msgIdToHtml: this._msgIdToHtml,
-      errors: this._errors
+      errors: this._errors,
     };
   }
 
@@ -147,7 +147,7 @@ class XliffParser implements ml.Visitor {
     switch (element.name) {
       case _UNIT_TAG:
         this._unitMlString = null!;
-        const idAttr = element.attrs.find(attr => attr.name === "id");
+        const idAttr = element.attrs.find((attr) => attr.name === 'id');
         if (!idAttr) {
           this._addError(element, `<${_UNIT_TAG}> misses the "id" attribute`);
         } else {
@@ -156,7 +156,7 @@ class XliffParser implements ml.Visitor {
             this._addError(element, `Duplicated translations for msg ${id}`);
           } else {
             ml.visitAll(this, element.children, null);
-            if (typeof this._unitMlString === "string") {
+            if (typeof this._unitMlString === 'string') {
               this._msgIdToHtml[id] = this._unitMlString;
             } else {
               this._addError(element, `Message ${id} misses a translation`);
@@ -208,7 +208,7 @@ class XmlToI18n implements ml.Visitor {
   private _errors: I18nError[];
 
   convert(message: string) {
-    const xmlIcu = new Parser(getXmlTagDefinition).parse(message, "", true);
+    const xmlIcu = new Parser(getXmlTagDefinition).parse(message, '', true);
     this._errors = xmlIcu.errors;
 
     const i18nNodes =
@@ -216,7 +216,7 @@ class XmlToI18n implements ml.Visitor {
 
     return {
       i18nNodes,
-      errors: this._errors
+      errors: this._errors,
     };
   }
 
@@ -226,9 +226,9 @@ class XmlToI18n implements ml.Visitor {
 
   visitElement(el: ml.Element, context: any): i18n.Placeholder | null {
     if (el.name === _PLACEHOLDER_TAG) {
-      const nameAttr = el.attrs.find(attr => attr.name === "id");
+      const nameAttr = el.attrs.find((attr) => attr.name === 'id');
       if (nameAttr) {
-        return new i18n.Placeholder("", nameAttr.value, el.sourceSpan!);
+        return new i18n.Placeholder('', nameAttr.value, el.sourceSpan!);
       }
 
       this._addError(el, `<${_PLACEHOLDER_TAG}> misses the "id" attribute`);
@@ -251,7 +251,7 @@ class XmlToI18n implements ml.Visitor {
   visitExpansionCase(icuCase: ml.ExpansionCase, context: any): any {
     return {
       value: icuCase.value,
-      nodes: ml.visitAll(this, icuCase.expression)
+      nodes: ml.visitAll(this, icuCase.expression),
     };
   }
 
@@ -292,37 +292,37 @@ class WriteVisitor implements i18n.Visitor {
 
     if (ph.isVoid) {
       // void tags have no children nor closing tags
-      return [new xml.Tag(_PLACEHOLDER_TAG, {id: ph.startName, ctype, "equiv-text": `<${ph.tag}/>`})];
+      return [new xml.Tag(_PLACEHOLDER_TAG, {id: ph.startName, ctype, 'equiv-text': `<${ph.tag}/>`})];
     }
 
-    const startTagPh = new xml.Tag(_PLACEHOLDER_TAG, {id: ph.startName, ctype, "equiv-text": `<${ph.tag}>`});
-    const closeTagPh = new xml.Tag(_PLACEHOLDER_TAG, {id: ph.closeName, ctype, "equiv-text": `</${ph.tag}>`});
+    const startTagPh = new xml.Tag(_PLACEHOLDER_TAG, {id: ph.startName, ctype, 'equiv-text': `<${ph.tag}>`});
+    const closeTagPh = new xml.Tag(_PLACEHOLDER_TAG, {id: ph.closeName, ctype, 'equiv-text': `</${ph.tag}>`});
 
     return [startTagPh, ...this.serialize(ph.children), closeTagPh];
   }
 
   visitPlaceholder(ph: i18n.Placeholder, context?: any): xml.Node[] {
-    return [new xml.Tag(_PLACEHOLDER_TAG, {id: ph.name, "equiv-text": `{{${ph.value}}}`})];
+    return [new xml.Tag(_PLACEHOLDER_TAG, {id: ph.name, 'equiv-text': `{{${ph.value}}}`})];
   }
 
   visitIcuPlaceholder(ph: i18n.IcuPlaceholder, context?: any): xml.Node[] {
     const equivText = `{${ph.value.expression}, ${ph.value.type}, ${Object.keys(ph.value.cases)
-      .map((value: string) => value + " {...}")
-      .join(" ")}}`;
-    return [new xml.Tag(_PLACEHOLDER_TAG, {id: ph.name, "equiv-text": equivText})];
+      .map((value: string) => value + ' {...}')
+      .join(' ')}}`;
+    return [new xml.Tag(_PLACEHOLDER_TAG, {id: ph.name, 'equiv-text': equivText})];
   }
 
   serialize(nodes: i18n.Node[]): xml.Node[] {
-    return [].concat(...nodes.map(node => node.visit(this)));
+    return [].concat(...nodes.map((node) => node.visit(this)));
   }
 }
 
 function getCtypeForTag(tag: string): string {
   switch (tag.toLowerCase()) {
-    case "br":
-      return "lb";
-    case "img":
-      return "image";
+    case 'br':
+      return 'lb';
+    case 'img':
+      return 'image';
     default:
       return `x-${tag}`;
   }

@@ -8,7 +8,7 @@
 
 /* tslint:disable */
 
-import {ParseSourceSpan} from "./parse_util";
+import { ParseSourceSpan } from './parse_util';
 
 export class Message {
   sources: MessageSpan[];
@@ -27,7 +27,7 @@ export class Message {
     public placeholderToMessage: {[phName: string]: Message},
     public meaning: string,
     public description: string,
-    public id: string
+    public id: string,
   ) {
     if (nodes.length) {
       this.sources = [
@@ -36,8 +36,8 @@ export class Message {
           startLine: nodes[0].sourceSpan.start.line + 1,
           startCol: nodes[0].sourceSpan.start.col + 1,
           endLine: nodes[nodes.length - 1].sourceSpan.end.line + 1,
-          endCol: nodes[0].sourceSpan.start.col + 1
-        }
+          endCol: nodes[0].sourceSpan.start.col + 1,
+        },
       ];
     } else {
       this.sources = [];
@@ -56,6 +56,7 @@ export interface MessageSpan {
 
 export interface Node {
   sourceSpan: ParseSourceSpan;
+
   visit(visitor: Visitor, context?: any): any;
 }
 
@@ -78,11 +79,12 @@ export class Container implements Node {
 
 export class Icu implements Node {
   public expressionPlaceholder: string;
+
   constructor(
     public expression: string,
     public type: string,
     public cases: {[k: string]: Node},
-    public sourceSpan: ParseSourceSpan
+    public sourceSpan: ParseSourceSpan,
   ) {}
 
   visit(visitor: Visitor, context?: any): any {
@@ -98,7 +100,7 @@ export class TagPlaceholder implements Node {
     public closeName: string,
     public children: Node[],
     public isVoid: boolean,
-    public sourceSpan: ParseSourceSpan
+    public sourceSpan: ParseSourceSpan,
   ) {}
 
   visit(visitor: Visitor, context?: any): any {
@@ -124,10 +126,15 @@ export class IcuPlaceholder implements Node {
 
 export interface Visitor {
   visitText(text: Text, context?: any): any;
+
   visitContainer(container: Container, context?: any): any;
+
   visitIcu(icu: Icu, context?: any): any;
+
   visitTagPlaceholder(ph: TagPlaceholder, context?: any): any;
+
   visitPlaceholder(ph: Placeholder, context?: any): any;
+
   visitIcuPlaceholder(ph: IcuPlaceholder, context?: any): any;
 }
 
@@ -138,20 +145,20 @@ export class CloneVisitor implements Visitor {
   }
 
   visitContainer(container: Container, context?: any): Container {
-    const children = container.children.map(n => n.visit(this, context));
+    const children = container.children.map((n) => n.visit(this, context));
     return new Container(children, container.sourceSpan);
   }
 
   visitIcu(icu: Icu, context?: any): Icu {
     const cases: {[k: string]: Node} = {};
-    Object.keys(icu.cases).forEach(key => (cases[key] = icu.cases[key].visit(this, context)));
+    Object.keys(icu.cases).forEach((key) => (cases[key] = icu.cases[key].visit(this, context)));
     const msg = new Icu(icu.expression, icu.type, cases, icu.sourceSpan);
     msg.expressionPlaceholder = icu.expressionPlaceholder;
     return msg;
   }
 
   visitTagPlaceholder(ph: TagPlaceholder, context?: any): TagPlaceholder {
-    const children = ph.children.map(n => n.visit(this, context));
+    const children = ph.children.map((n) => n.visit(this, context));
     return new TagPlaceholder(ph.tag, ph.attrs, ph.startName, ph.closeName, children, ph.isVoid, ph.sourceSpan);
   }
 
@@ -169,17 +176,17 @@ export class RecurseVisitor implements Visitor {
   visitText(text: Text, context?: any): any {}
 
   visitContainer(container: Container, context?: any): any {
-    container.children.forEach(child => child.visit(this));
+    container.children.forEach((child) => child.visit(this));
   }
 
   visitIcu(icu: Icu, context?: any): any {
-    Object.keys(icu.cases).forEach(k => {
+    Object.keys(icu.cases).forEach((k) => {
       icu.cases[k].visit(this);
     });
   }
 
   visitTagPlaceholder(ph: TagPlaceholder, context?: any): any {
-    ph.children.forEach(child => child.visit(this));
+    ph.children.forEach((child) => child.visit(this));
   }
 
   visitPlaceholder(ph: Placeholder, context?: any): any {}

@@ -1,3 +1,4 @@
+/* eslint-disable no-redeclare */
 import {
   Inject,
   Injectable,
@@ -6,14 +7,14 @@ import {
   MissingTranslationStrategy,
   Optional,
   TRANSLATIONS,
-  TRANSLATIONS_FORMAT
-} from "@angular/core";
-import {xliffDigest, xliffLoadToI18n} from "./serializers/xliff";
-import {xliff2Digest, xliff2LoadToI18n} from "./serializers/xliff2";
-import {xtbDigest, xtbLoadToI18n, xtbMapper} from "./serializers/xtb";
-import {HtmlParser, TranslationBundle} from "./parser/html";
-import {I18nMessagesById, serializeNodes} from "./serializers/serializer";
-import {Message} from "./ast/i18n_ast";
+  TRANSLATIONS_FORMAT,
+} from '@angular/core';
+import { xliffDigest, xliffLoadToI18n } from './serializers/xliff';
+import { xliff2Digest, xliff2LoadToI18n } from './serializers/xliff2';
+import { xtbDigest, xtbLoadToI18n, xtbMapper } from './serializers/xtb';
+import { HtmlParser, TranslationBundle } from './parser/html';
+import { I18nMessagesById, serializeNodes } from './serializers/serializer';
+import { Message } from './ast/i18n_ast';
 
 export declare interface I18n {
   (def: string | I18nDef, params?: {[key: string]: any}): string;
@@ -27,7 +28,7 @@ export interface I18nDef {
 }
 
 export const MISSING_TRANSLATION_STRATEGY = new InjectionToken<MissingTranslationStrategy>(
-  "MissingTranslationStrategy"
+  'MissingTranslationStrategy',
 );
 
 /**
@@ -41,25 +42,26 @@ export class I18n {
     @Inject(LOCALE_ID) locale: string,
     @Optional()
     @Inject(MISSING_TRANSLATION_STRATEGY)
-    missingTranslationStrategy: MissingTranslationStrategy = MissingTranslationStrategy.Warning
+    missingTranslationStrategy: MissingTranslationStrategy = MissingTranslationStrategy.Warning,
   ) {
     let loadFct: (content: string, url: string) => I18nMessagesById;
     let digest: (message: Message) => string;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     let createMapper = (message: Message) => null;
-    format = (format || "xlf").toLowerCase();
+    format = (format || 'xlf').toLowerCase();
     switch (format) {
-      case "xtb":
+      case 'xtb':
         loadFct = xtbLoadToI18n;
         digest = xtbDigest;
         createMapper = xtbMapper;
         break;
-      case "xliff2":
-      case "xlf2":
+      case 'xliff2':
+      case 'xlf2':
         loadFct = xliff2LoadToI18n;
         digest = xliff2Digest;
         break;
-      case "xliff":
-      case "xlf":
+      case 'xliff':
+      case 'xlf':
         loadFct = xliffLoadToI18n;
         digest = xliffDigest;
         break;
@@ -70,23 +72,23 @@ export class I18n {
 
     const translationsBundle = TranslationBundle.load(
       translations,
-      "i18n",
+      'i18n',
       digest,
       createMapper,
       loadFct,
-      missingTranslationStrategy
+      missingTranslationStrategy,
     );
 
     // todo use interpolation config
     return (def: string | I18nDef, params: {[key: string]: any} = {}) => {
-      const content = typeof def === "string" ? def : def.value;
+      const content = typeof def === 'string' ? def : def.value;
       const metadata = {};
-      if (typeof def === "object") {
-        metadata["id"] = def.id;
-        metadata["meaning"] = def.meaning;
-        metadata["description"] = def.description;
+      if (typeof def === 'object') {
+        metadata['id'] = def.id;
+        metadata['meaning'] = def.meaning;
+        metadata['description'] = def.description;
       }
-      const htmlParserResult = htmlParser.parse(content, "", true);
+      const htmlParserResult = htmlParser.parse(content, '', true);
 
       if (htmlParserResult.errors.length) {
         throw htmlParserResult.errors;
@@ -97,10 +99,10 @@ export class I18n {
         translationsBundle,
         params,
         metadata,
-        ["wrapper"]
+        ['wrapper'],
       );
 
-      return serializeNodes(mergedNodes.rootNodes, locale, params).join("");
+      return serializeNodes(mergedNodes.rootNodes, locale, params).join('');
     };
   }
 }

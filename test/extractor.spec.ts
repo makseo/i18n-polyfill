@@ -1,20 +1,20 @@
-import {getAst, getFileContent} from "../lib/extractor/src/extractor";
+import {getAst, getFileContent} from '../lib/extractor/src/extractor';
 
-describe("Extractor", () => {
-  it("should extract AST", () => {
-    const messages = getAst(["example/src/**/*.ts"]);
-    const url = "example/src/app/app.component.ts";
+describe('Extractor', () => {
+  it('should extract AST', () => {
+    const messages = getAst(['example/src/**/*.ts']);
+    const url = 'example/src/app/app.component.ts';
     expect(messages[url]).toBeDefined();
     expect(messages[url]).toEqual([
-      {description: "Custom desc", id: "customId", meaning: "Custom meaning", value: "Some value"},
-      "This is a test {{ok}} !",
-      "another test ^_^"
+      {description: 'Custom desc', id: 'customId', meaning: 'Custom meaning', value: 'Some value'},
+      'This is a test {{ok}} !',
+      'another test ^_^',
     ]);
   });
 
-  it("should generate content", () => {
-    const messages = getAst(["example/src/**/*.ts"]);
-    const content = getFileContent(messages, "xlf");
+  it('should generate content', () => {
+    const messages = getAst(['example/src/**/*.ts']);
+    const content = getFileContent(messages, 'xlf');
     expect(content).toEqual(`<?xml version="1.0" encoding="UTF-8" ?>
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
   <file source-language="en" datatype="plaintext" original="ng2.template">
@@ -55,9 +55,9 @@ describe("Extractor", () => {
 `);
   });
 
-  it("should use locale specified", () => {
-    const messages = getAst(["example/src/**/*.ts"]);
-    const content = getFileContent(messages, null, "xlf", "de");
+  it('should use locale specified', () => {
+    const messages = getAst(['example/src/**/*.ts']);
+    const content = getFileContent(messages, null, 'xlf', 'de');
     expect(content).toEqual(`<?xml version="1.0" encoding="UTF-8" ?>
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
   <file source-language="de" datatype="plaintext" original="ng2.template">
@@ -98,9 +98,9 @@ describe("Extractor", () => {
 `);
   });
 
-  it("should merge content", () => {
-    const messages = getAst(["example/src/**/*.ts"]);
-    const content = getFileContent(messages, "example/src/i18n/source.xlf", "xlf");
+  it('should merge content', () => {
+    const messages = getAst(['example/src/**/*.ts']);
+    const content = getFileContent(messages, 'example/src/i18n/source.xlf', 'xlf');
     expect(content).toEqual(`<?xml version="1.0" encoding="UTF-8" ?>
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
   <file source-language="en" datatype="plaintext" original="ng2.template">

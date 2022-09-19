@@ -6,13 +6,17 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import * as ml from "../ast/ast";
+import * as ml from '../ast/ast';
 
 export interface IVisitor {
   visitTag(tag: Tag): any;
+
   visitElement(element: ml.Element): any;
+
   visitText(text: Text): any;
+
   visitDeclaration(decl: Declaration): any;
+
   visitDoctype(doctype: Doctype): any;
 }
 
@@ -23,8 +27,8 @@ class Visitor implements IVisitor {
       return `<${tag.name}${strAttrs}/>`;
     }
 
-    const strChildren = tag.children.map(node => node.visit(this));
-    return `<${tag.name}${strAttrs}>${strChildren.join("")}</${tag.name}>`;
+    const strChildren = tag.children.map((node) => node.visit(this));
+    return `<${tag.name}${strAttrs}>${strChildren.join('')}</${tag.name}>`;
   }
 
   visitText(text: Text): string {
@@ -47,8 +51,8 @@ class Visitor implements IVisitor {
   private _serializeAttributes(attrs: {[k: string]: string}) {
     const strAttrs = Object.keys(attrs)
       .map((name: string) => `${name}="${_escapeXml(attrs[name])}"`)
-      .join(" ");
-    return strAttrs.length > 0 ? " " + strAttrs : "";
+      .join(' ');
+    return strAttrs.length > 0 ? ' ' + strAttrs : '';
   }
 
   visitDoctype(doctype: Doctype): any {
@@ -59,7 +63,7 @@ class Visitor implements IVisitor {
 const _visitor = new Visitor();
 
 export function serialize(nodes: Node[]): string {
-  return nodes.map((node: Node): string => node.visit(_visitor)).join("");
+  return nodes.map((node: Node): string => node.visit(_visitor)).join('');
 }
 
 export interface Node {
@@ -100,16 +104,16 @@ export class Text implements Node {
 
 export class CR extends Text {
   constructor(ws = 0) {
-    super(`\n${new Array(ws + 1).join(" ")}`);
+    super(`\n${new Array(ws + 1).join(' ')}`);
   }
 }
 
 const _ESCAPED_CHARS: [RegExp, string][] = [
-  [/&/g, "&amp;"],
-  [/"/g, "&quot;"],
-  [/'/g, "&apos;"],
-  [/</g, "&lt;"],
-  [/>/g, "&gt;"]
+  [/&/g, '&amp;'],
+  [/"/g, '&quot;'],
+  [/'/g, '&apos;'],
+  [/</g, '&lt;'],
+  [/>/g, '&gt;'],
 ];
 
 function _escapeXml(text: string): string {

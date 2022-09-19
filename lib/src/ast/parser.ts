@@ -7,12 +7,12 @@
  */
 
 /* tslint:disable */
-import {ParseError, ParseSourceSpan} from "./parse_util";
+import { ParseError, ParseSourceSpan } from './parse_util';
 
-import * as html from "./ast";
-import {DEFAULT_INTERPOLATION_CONFIG, InterpolationConfig} from "./interpolation_config";
-import * as lex from "./lexer";
-import {TagDefinition, getNsPrefix, isNgContainer, mergeNsAndName} from "./tags";
+import * as html from './ast';
+import { DEFAULT_INTERPOLATION_CONFIG, InterpolationConfig } from './interpolation_config';
+import * as lex from './lexer';
+import { getNsPrefix, isNgContainer, mergeNsAndName, TagDefinition } from './tags';
 
 export class TreeError extends ParseError {
   static create(elementName: string | null, span: ParseSourceSpan, msg: string): TreeError {
@@ -35,7 +35,7 @@ export class Parser {
     source: string,
     url: string,
     parseExpansionForms = false,
-    interpolationConfig: InterpolationConfig = DEFAULT_INTERPOLATION_CONFIG
+    interpolationConfig: InterpolationConfig = DEFAULT_INTERPOLATION_CONFIG,
   ): ParseTreeResult {
     const tokensAndErrors = lex.tokenize(source, url, this.getTagDefinition, parseExpansionForms, interpolationConfig);
 
@@ -43,7 +43,7 @@ export class Parser {
 
     return new ParseTreeResult(
       treeAndErrors.rootNodes,
-      (tokensAndErrors.errors as ParseError[]).concat(treeAndErrors.errors)
+      (tokensAndErrors.errors as ParseError[]).concat(treeAndErrors.errors),
     );
   }
 }
@@ -141,7 +141,7 @@ class _TreeBuilder {
     }
     const sourceSpan = new ParseSourceSpan(token.sourceSpan.start, this._peek.sourceSpan.end);
     this._addToParent(
-      new html.Expansion(switchValue.parts[0], type.parts[0], cases, sourceSpan, switchValue.sourceSpan)
+      new html.Expansion(switchValue.parts[0], type.parts[0], cases, sourceSpan, switchValue.sourceSpan),
     );
 
     this._advance();
@@ -223,7 +223,7 @@ class _TreeBuilder {
 
   private _consumeText(token: lex.Token) {
     let text = token.parts[0];
-    if (text.length > 0 && text[0] === "\n") {
+    if (text.length > 0 && text[0] === '\n') {
       const parent = this._getParentElement();
       if (parent !== null && parent.children.length === 0 && this.getTagDefinition(parent.name).ignoreFirstLf) {
         text = text.substring(1);
@@ -262,8 +262,8 @@ class _TreeBuilder {
           TreeError.create(
             fullName,
             startTagToken.sourceSpan,
-            `Only void and foreign elements can be self closed "${startTagToken.parts[1]}"`
-          )
+            `Only void and foreign elements can be self closed "${startTagToken.parts[1]}"`,
+          ),
         );
       }
     } else if (this._peek.type === lex.TokenType.TAG_OPEN_END) {
@@ -297,7 +297,7 @@ class _TreeBuilder {
         [],
         el.sourceSpan,
         el.startSourceSpan,
-        el.endSourceSpan
+        el.endSourceSpan,
       );
       this._insertBeforeContainer(parent, container, newParent);
     }
@@ -318,13 +318,11 @@ class _TreeBuilder {
         TreeError.create(
           fullName,
           endTagToken.sourceSpan,
-          `Void elements do not have end tags "${endTagToken.parts[1]}"`
-        )
+          `Void elements do not have end tags "${endTagToken.parts[1]}"`,
+        ),
       );
     } else if (!this._popElement(fullName)) {
-      const errMsg = `Unexpected closing tag "${
-        fullName
-      }". It may happen when the tag has already been closed by another tag. For more info see https://www.w3.org/TR/html5/syntax.html#closing-elements-that-have-implied-end-tags`;
+      const errMsg = `Unexpected closing tag "${fullName}". It may happen when the tag has already been closed by another tag. For more info see https://www.w3.org/TR/html5/syntax.html#closing-elements-that-have-implied-end-tags`;
       this._errors.push(TreeError.create(fullName, endTagToken.sourceSpan, errMsg));
     }
   }
@@ -347,7 +345,7 @@ class _TreeBuilder {
   private _consumeAttr(attrName: lex.Token): html.Attribute {
     const fullName = mergeNsAndName(attrName.parts[0], attrName.parts[1]);
     let end = attrName.sourceSpan.end;
-    let value = "";
+    let value = '';
     let valueSpan: ParseSourceSpan = undefined!;
     if (this._peek.type === lex.TokenType.ATTR_VALUE) {
       const valueToken = this._advance();

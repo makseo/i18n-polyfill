@@ -1,5 +1,3 @@
-import {I18nDef} from "../i18n-polyfill";
-
 /**
  * @license
  * Copyright Google Inc. All Rights Reserved.
@@ -12,7 +10,7 @@ export class ParseLocation {
   constructor(public file: ParseSourceFile, public offset: number, public line: number, public col: number) {}
 
   toString(): string {
-    return this.offset != null ? `${this.line}:${this.col}` : "";
+    return this.offset != null ? `${this.line}:${this.col}` : '';
   }
 
   // Return the source around the location
@@ -32,7 +30,7 @@ export class ParseLocation {
       while (ctxChars < maxChars && startOffset > 0) {
         startOffset--;
         ctxChars++;
-        if (content[startOffset] === "\n") {
+        if (content[startOffset] === '\n') {
           if (++ctxLines === maxLines) {
             break;
           }
@@ -44,7 +42,7 @@ export class ParseLocation {
       while (ctxChars < maxChars && endOffset < content.length - 1) {
         endOffset++;
         ctxChars++;
-        if (content[endOffset] === "\n") {
+        if (content[endOffset] === '\n') {
           if (++ctxLines === maxLines) {
             break;
           }
@@ -53,7 +51,7 @@ export class ParseLocation {
 
       return {
         before: content.substring(startOffset, this.offset),
-        after: content.substring(this.offset, endOffset + 1)
+        after: content.substring(this.offset, endOffset + 1),
       };
     }
 
@@ -62,7 +60,7 @@ export class ParseLocation {
 }
 
 export class ParseSourceFile {
-  constructor(public content: string, public url = "") {}
+  constructor(public content: string, public url = '') {}
 }
 
 export class ParseSourceSpan {
@@ -75,23 +73,23 @@ export class ParseSourceSpan {
 
 export enum ParseErrorLevel {
   WARNING,
-  ERROR
+  ERROR,
 }
 
 export class ParseError {
   constructor(
     public span: ParseSourceSpan,
     public msg: string,
-    public level: ParseErrorLevel = ParseErrorLevel.ERROR
+    public level: ParseErrorLevel = ParseErrorLevel.ERROR,
   ) {}
 
   contextualMessage(): string {
     const ctx = this.span.start.getContext(100, 3);
-    return ctx ? ` ("${ctx.before}[${ParseErrorLevel[this.level]} ->]${ctx.after}")` : "";
+    return ctx ? ` ("${ctx.before}[${ParseErrorLevel[this.level]} ->]${ctx.after}")` : '';
   }
 
   toString(): string {
-    const details = this.span.details ? `, ${this.span.details}` : "";
+    const details = this.span.details ? `, ${this.span.details}` : '';
     return `${this.msg}${this.contextualMessage()}: ${this.span.start}${details}`;
   }
 }
@@ -106,5 +104,5 @@ export class I18nError extends ParseError {
 }
 
 export function escapeRegExp(s: string): string {
-  return s.replace(/([.*+?^=!:${}()|[\]\/\\])/g, "\\$1");
+  return s.replace(/([.*+?^=!:${}()|[\]\/\\])/g, '\\$1');
 }

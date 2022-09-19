@@ -1,11 +1,11 @@
-import * as html from "../ast/ast";
-import * as i18n from "../ast/i18n_ast";
-import {InterpolationConfig} from "../ast/interpolation_config";
-import {Parser} from "./parser";
-import {Lexer} from "./lexer";
-import {PlaceholderRegistry} from "../serializers/placeholder";
-import {getHtmlTagDefinition} from "../ast/html_tags";
-import {ParseSourceSpan} from "../ast/parse_util";
+import * as html from '../ast/ast';
+import * as i18n from '../ast/i18n_ast';
+import {InterpolationConfig} from '../ast/interpolation_config';
+import {Parser} from './parser';
+import {Lexer} from './lexer';
+import {PlaceholderRegistry} from '../serializers/placeholder';
+import {getHtmlTagDefinition} from '../ast/html_tags';
+import {ParseSourceSpan} from '../ast/parse_util';
 
 const _expParser = new Parser(new Lexer());
 
@@ -13,7 +13,7 @@ const _expParser = new Parser(new Lexer());
  * Returns a function converting html nodes to an i18n Message given an interpolationConfig
  */
 export function createI18nMessageFactory(
-  interpolationConfig: InterpolationConfig
+  interpolationConfig: InterpolationConfig,
 ): (nodes: html.Node[], meaning: string, description: string, id: string) => i18n.Message {
   const visitor = new I18nVisitor(_expParser, interpolationConfig);
 
@@ -45,16 +45,16 @@ class I18nVisitor implements html.Visitor {
   visitElement(el: html.Element, context: any): i18n.Node {
     const children = html.visitAll(this, el.children);
     const attrs: {[k: string]: string} = {};
-    el.attrs.forEach(attr => {
+    el.attrs.forEach((attr) => {
       // Do not visit the attributes, translatable ones are top-level ASTs
       attrs[attr.name] = attr.value;
     });
 
     const isVoid: boolean = getHtmlTagDefinition(el.name).isVoid;
     const startPhName = this._placeholderRegistry.getStartTagPlaceholderName(el.name, attrs, isVoid);
-    this._placeholderToContent[startPhName] = el.sourceSpan ? el.sourceSpan!.toString() : "";
+    this._placeholderToContent[startPhName] = el.sourceSpan ? el.sourceSpan!.toString() : '';
 
-    let closePhName = "";
+    let closePhName = '';
 
     if (!isVoid) {
       closePhName = this._placeholderRegistry.getCloseTagPlaceholderName(el.name);
@@ -82,8 +82,8 @@ class I18nVisitor implements html.Visitor {
     const i18nIcu = new i18n.Icu(icu.switchValue, icu.type, i18nIcuCases, icu.sourceSpan);
     icu.cases.forEach((caze): void => {
       i18nIcuCases[caze.value] = new i18n.Container(
-        caze.expression.map(node => node.visit(this, {})),
-        caze.expSourceSpan
+        caze.expression.map((node) => node.visit(this, {})),
+        caze.expSourceSpan,
       );
     });
     this._icuDepth--;
@@ -104,21 +104,21 @@ class I18nVisitor implements html.Visitor {
     // translations. We need to create a new visitor (they are not re-entrant) to compute the
     // message id.
     // TODO(vicb): add a html.Node -> i18n.Message cache to avoid having to re-create the msg
-    const phName = this._placeholderRegistry.getPlaceholderName("ICU", icu.sourceSpan.toString());
+    const phName = this._placeholderRegistry.getPlaceholderName('ICU', icu.sourceSpan.toString());
     const visitor = new I18nVisitor(this._expressionParser, this._interpolationConfig);
-    this._placeholderToMessage[phName] = visitor.toI18nMessage([icu], "", "", "");
+    this._placeholderToMessage[phName] = visitor.toI18nMessage([icu], '', '', '');
     return new i18n.IcuPlaceholder(i18nIcu, phName, icu.sourceSpan);
   }
 
   visitExpansionCase(icuCase: html.ExpansionCase, context: any): i18n.Node {
-    throw new Error("Unreachable code");
+    throw new Error('Unreachable code');
   }
 
   private _visitTextWithInterpolation(text: string, sourceSpan: ParseSourceSpan): i18n.Node {
     const splitInterpolation = this._expressionParser.splitInterpolation(
       text,
       sourceSpan.start.toString(),
-      this._interpolationConfig
+      this._interpolationConfig,
     );
 
     if (!splitInterpolation) {
@@ -133,7 +133,7 @@ class I18nVisitor implements html.Visitor {
 
     for (let i = 0; i < splitInterpolation.strings.length - 1; i++) {
       const expression = splitInterpolation.expressions[i];
-      const baseName = extractPlaceholderName(expression) || "INTERPOLATION";
+      const baseName = extractPlaceholderName(expression) || 'INTERPOLATION';
       const phName = this._placeholderRegistry.getPlaceholderName(baseName, expression);
 
       if (splitInterpolation.strings[i].length) {

@@ -6,14 +6,14 @@
  * found in the LICENSE file at https://angular.io/license
  */
 
-import * as html from "../ast/ast";
-import * as i18n from "../ast/i18n_ast";
-import {getHtmlTagDefinition} from "../ast/html_tags";
-import {I18nPluralPipe, I18nSelectPipe, NgLocaleLocalization} from "@angular/common";
-import {Parser} from "../ast/parser";
-import {getXmlTagDefinition} from "../ast/xml_tags";
-import {I18nError} from "../ast/parse_util";
-import * as xml from "./xml_helper";
+import * as html from '../ast/ast';
+import * as i18n from '../ast/i18n_ast';
+import {getHtmlTagDefinition} from '../ast/html_tags';
+import {I18nPluralPipe, I18nSelectPipe, NgLocaleLocalization} from '@angular/common';
+import {Parser} from '../ast/parser';
+import {getXmlTagDefinition} from '../ast/xml_tags';
+import {I18nError} from '../ast/parse_util';
+import * as xml from './xml_helper';
 
 export interface I18nMessagesById {
   [msgId: string]: i18n.Node[];
@@ -58,7 +58,7 @@ export class SimplePlaceholderMapper extends i18n.RecurseVisitor implements Plac
   // create a mapping from the message
   constructor(message: i18n.Message, private mapName: (name: string) => string) {
     super();
-    message.nodes.forEach(node => node.visit(this));
+    message.nodes.forEach((node) => node.visit(this));
   }
 
   toPublicName(internalName: string): string | null {
@@ -110,17 +110,20 @@ export class SimplePlaceholderMapper extends i18n.RecurseVisitor implements Plac
 }
 
 const i18nSelectPipe = new I18nSelectPipe();
+
 class SerializerVisitor implements html.Visitor {
   private i18nPluralPipe: I18nPluralPipe;
+
   constructor(locale: string, private params: {[key: string]: any}) {
     this.i18nPluralPipe = new I18nPluralPipe(new NgLocaleLocalization(locale));
   }
+
   visitElement(element: html.Element, context: any): any {
     if (getHtmlTagDefinition(element.name).isVoid) {
-      return `<${element.name}${this.serializeNodes(element.attrs, " ")}/>`;
+      return `<${element.name}${this.serializeNodes(element.attrs, ' ')}/>`;
     }
 
-    return `<${element.name}${this.serializeNodes(element.attrs, " ")}>${this.serializeNodes(element.children)}</${
+    return `<${element.name}${this.serializeNodes(element.attrs, ' ')}>${this.serializeNodes(element.children)}</${
       element.name
     }>`;
   }
@@ -139,12 +142,12 @@ class SerializerVisitor implements html.Visitor {
 
   visitExpansion(expansion: html.Expansion, context: any): any {
     const cases = {};
-    expansion.cases.forEach(c => (cases[c.value] = this.serializeNodes(c.expression)));
+    expansion.cases.forEach((c) => (cases[c.value] = this.serializeNodes(c.expression)));
 
     switch (expansion.type) {
-      case "select":
-        return i18nSelectPipe.transform(this.params[expansion.switchValue] || "", cases);
-      case "plural":
+      case 'select':
+        return i18nSelectPipe.transform(this.params[expansion.switchValue] || '', cases);
+      case 'plural':
         return this.i18nPluralPipe.transform(this.params[expansion.switchValue], cases);
     }
     throw new Error(`Unknown expansion type "${expansion.type}"`);
@@ -154,16 +157,16 @@ class SerializerVisitor implements html.Visitor {
     return ` ${expansionCase.value} {${this.serializeNodes(expansionCase.expression)}}`;
   }
 
-  private serializeNodes(nodes: html.Node[], join = ""): string {
+  private serializeNodes(nodes: html.Node[], join = ''): string {
     if (nodes.length === 0) {
-      return "";
+      return '';
     }
-    return join + nodes.map(a => a.visit(this, null)).join(join);
+    return join + nodes.map((a) => a.visit(this, null)).join(join);
   }
 }
 
 export function serializeNodes(nodes: html.Node[], locale: string, params: {[key: string]: any}): string[] {
-  return nodes.map(node => node.visit(new SerializerVisitor(locale, params), null));
+  return nodes.map((node) => node.visit(new SerializerVisitor(locale, params), null));
 }
 
 export class HtmlToXmlParser implements html.Visitor {
@@ -175,23 +178,23 @@ export class HtmlToXmlParser implements html.Visitor {
   parse(content: string) {
     this.xmlMessagesById = {};
 
-    const parser = new Parser(getXmlTagDefinition).parse(content, "", false);
+    const parser = new Parser(getXmlTagDefinition).parse(content, '', false);
 
     this.errors = parser.errors;
     html.visitAll(this, parser.rootNodes, null);
 
     return {
       xmlMessagesById: this.xmlMessagesById,
-      errors: this.errors
+      errors: this.errors,
     };
   }
 
   visitElement(element: html.Element, context: any): any {
     switch (element.name) {
       case this.MESSAGE_TAG:
-        const id = element.attrs.find(attr => attr.name === "id");
+        const id = element.attrs.find((attr) => attr.name === 'id');
         if (id) {
-          this.xmlMessagesById[id.value] = (element as any) as xml.Node;
+          this.xmlMessagesById[id.value] = element as any as xml.Node;
         }
         break;
       default:
